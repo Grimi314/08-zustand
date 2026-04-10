@@ -1,5 +1,6 @@
 import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
+import { Metadata } from "next";
 import {
   dehydrate,
   HydrationBoundary,
@@ -25,4 +26,28 @@ export default async function NotesPage({ params }: Props) {
       <NotesClient tag={tag} />
     </HydrationBoundary>
   );
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const tag = slug?.[0] ?? "all";
+
+  return {
+    title: `Notes filtered by:  ${tag}`,
+    description: `Browse notes filtered by "${tag}" tag. Find relevant notes quickly.`,
+    openGraph: {
+      title: `Notes filtered by:  ${tag}`,
+      description: `Browse notes filtered by "${tag}" tag. Find relevant notes quickly.`,
+      url: "http://localhost:3000",
+      images: [
+        {
+          url: "/notehub-og-meta.jpg",
+          width: 1200,
+          height: 600,
+          alt: "image with app preview",
+        },
+      ],
+      type: "article",
+    },
+  };
 }

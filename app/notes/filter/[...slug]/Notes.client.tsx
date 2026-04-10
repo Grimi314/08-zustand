@@ -11,12 +11,14 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
 import css from "./Notes.client.module.css";
 import Loader from "@/app/loading";
+import { useRouter } from "next/router";
 
 type Props = {
   tag: string;
 };
 
 export default function NotesClient({ tag }: Props) {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [perPage] = useState(12);
@@ -50,7 +52,10 @@ export default function NotesClient({ tag }: Props) {
             onPageChange={handleChangePage}
           />
         )}
-        <button className={css.button} onClick={() => setIsClicked(true)}>
+        <button
+          className={css.button}
+          onClick={() => router.push("/notes/action/create")}
+        >
           Create note +
         </button>
       </header>

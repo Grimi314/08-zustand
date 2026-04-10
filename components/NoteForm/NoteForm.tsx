@@ -1,8 +1,10 @@
 import css from "./NoteForm.module.css";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../lib/api";
+import { useNoteDraftStore } from "@/lib/store/noteStore";
+import { useRouter } from "next/router";
+import { NewNoteData } from "@/lib/store/noteStore";
 
 interface NoteFormProps {
   onClose: () => void;
@@ -20,75 +22,103 @@ const initialValues: FormValues = {
   tag: "Todo",
 };
 
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .min(3, "Minimum 3 characters")
-    .max(50, "Maximum 50 characters")
-    .required("Title is required"),
-
-  content: Yup.string().max(500, "Maximum 500 characters"),
-
-  tag: Yup.string()
-    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
-    .required("Tag is required"),
-});
-
 export default function NoteForm({ onClose }: NoteFormProps) {
+  const router = useRouter();
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+  const [values, setValues] = useState<FormValues>(initialValues);
+  const [errors, setErrors] = useState<Partial<FormValues>>({});
+
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      onClose();
+      clearDraft();
+      router.push("/notes/filter/all");
     },
   });
 
-  const handleSubmit = (values: FormValues) => {
+  const validate = () => {
+    const newErrors: Partial<FormValues> = {};
+
+    if (!values.title) {
+      newErrors.title = "Title is required";
+    } else if (values.title.length < 3) {
+      newErrors.title = "Minimum 3 characters";
+    } else if (values.title.length > 50) {
+      newErrors.title = "Maximum 50 characters";
+    }
+
+    if (values.content.length > 500) {
+      newErrors.content = "Maximum 500 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    setValues({
+      ...draft,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (formData: FormData) => {
+    const values = Object.fromEntries(formData) as NewNoteData;
+
     mutation.mutate(values);
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      <Form className={css.form}>
-        <label>
-          Title
-          <Field name="title" type="text" />
-          <ErrorMessage name="title" component="span" />
-        </label>
+    <form className={css.form} action={handleSubmit}>
+      <label>
+        Title
+        <input
+          name="title"
+          type="text"
+          value={values.title}
+          onChange={handleChange}
+        />
+        {errors.title && <span>{errors.title}</span>}
+      </label>
 
-        <label>
-          Content
-          <Field name="content" as="textarea" />
-          <ErrorMessage name="content" component="span" />
-        </label>
+      <label>
+        Content
+        <textarea
+          name="content"
+          value={values.content}
+          onChange={handleChange}
+        />
+        {errors.content && <span>{errors.content}</span>}
+      </label>
 
-        <label>
-          Tag
-          <Field name="tag" as="select">
-            <option value="Todo">Todo</option>
-            <option value="Work">Work</option>
-            <option value="Personal">Personal</option>
-            <option value="Meeting">Meeting</option>
-            <option value="Shopping">Shopping</option>
-          </Field>
-          <ErrorMessage name="tag" component="span" />
-        </label>
+      <label>
+        Tag
+        <select name="tag" value={values.tag} onChange={handleChange}>
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
+        </select>
+        {errors.tag && <span>{errors.tag}</span>}
+      </label>
 
-        <div className={css.actions}>
-          <button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Creating..." : "Create"}
-          </button>
+      <div className={css.actions}>
+        <button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Creating..." : "Create"}
+        </button>
 
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-      </Form>
-    </Formik>
+        <button type="button" onClick={onClose}>
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }

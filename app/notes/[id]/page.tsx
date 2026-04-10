@@ -1,5 +1,6 @@
 import { fetchNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
+import { Metadata } from "next";
 import {
   dehydrate,
   HydrationBoundary,
@@ -22,4 +23,30 @@ export default async function NoteDetails({ params }: NoteDetailsProps) {
       <NoteDetailsClient />
     </HydrationBoundary>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: NoteDetailsProps): Promise<Metadata> {
+  const { id } = await params;
+  const note = await fetchNoteById(id);
+
+  return {
+    title: `Note: ${note.title}`,
+    description: note.content,
+    openGraph: {
+      title: `Note: ${note.title}`,
+      description: note.content,
+      url: "http://localhost:3000",
+      images: [
+        {
+          url: "/notehub-og-meta.jpg",
+          width: 1200,
+          height: 600,
+          alt: "image with app preview",
+        },
+      ],
+      type: "article",
+    },
+  };
 }
