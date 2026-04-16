@@ -1,7 +1,6 @@
 import css from "./CreateNote.module.css";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Metadata } from "next";
-import { useRouter } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "CreateNote",
@@ -23,15 +22,11 @@ export const metadata: Metadata = {
 };
 
 export default function CreateNote() {
-  const router = useRouter();
-  function handleClose() {
-    router.back();
-  }
   return (
     <main className={css.main}>
       <div className={css.container}>
         <h1 className={css.title}>Create note</h1>
-        <NoteForm onClose={handleClose} />
+        <NoteForm />
       </div>
     </main>
   );
