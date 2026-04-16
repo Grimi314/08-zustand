@@ -1,10 +1,10 @@
 import css from "./NoteForm.module.css";
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../lib/api";
 import { useNoteDraftStore } from "@/lib/store/noteStore";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { NewNoteData } from "@/lib/store/noteStore";
+import { useState } from "react";
 
 interface NoteFormProps {
   onClose: () => void;
@@ -16,16 +16,9 @@ interface FormValues {
   tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }
 
-const initialValues: FormValues = {
-  title: "",
-  content: "",
-  tag: "Todo",
-};
-
 export default function NoteForm({ onClose }: NoteFormProps) {
   const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
-  const [values, setValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<Partial<FormValues>>({});
 
   const queryClient = useQueryClient();
@@ -42,15 +35,15 @@ export default function NoteForm({ onClose }: NoteFormProps) {
   const validate = () => {
     const newErrors: Partial<FormValues> = {};
 
-    if (!values.title) {
+    if (!draft.title) {
       newErrors.title = "Title is required";
-    } else if (values.title.length < 3) {
+    } else if (draft.title.length < 3) {
       newErrors.title = "Minimum 3 characters";
-    } else if (values.title.length > 50) {
+    } else if (draft.title.length > 50) {
       newErrors.title = "Maximum 50 characters";
     }
 
-    if (values.content.length > 500) {
+    if (draft.content.length > 500) {
       newErrors.content = "Maximum 500 characters";
     }
 
@@ -63,15 +56,16 @@ export default function NoteForm({ onClose }: NoteFormProps) {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    setValues({
+    setDraft({
       ...draft,
       [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = (formData: FormData) => {
-    const values = Object.fromEntries(formData) as NewNoteData;
+    if (!validate()) return;
 
+    const values = Object.fromEntries(formData) as NewNoteData;
     mutation.mutate(values);
   };
 
@@ -82,7 +76,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         <input
           name="title"
           type="text"
-          value={values.title}
+          value={draft.title}
           onChange={handleChange}
         />
         {errors.title && <span>{errors.title}</span>}
@@ -92,7 +86,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         Content
         <textarea
           name="content"
-          value={values.content}
+          value={draft.content}
           onChange={handleChange}
         />
         {errors.content && <span>{errors.content}</span>}
@@ -100,7 +94,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
       <label>
         Tag
-        <select name="tag" value={values.tag} onChange={handleChange}>
+        <select name="tag" value={draft.tag} onChange={handleChange}>
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>

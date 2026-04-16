@@ -1,6 +1,7 @@
 import css from "./CreateNote.module.css";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Metadata } from "next";
+import { useRouter } from "next/router";
 
 export const metadata: Metadata = {
   title: "CreateNote",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CreateNote",
     description: "Create new note",
-    url: "http://localhost:3000",
+    url: "https://08-zustand-blush-eight.vercel.app/notes/action/create",
     images: [
       {
         url: "/notehub-og-meta.jpg",
@@ -22,11 +23,15 @@ export const metadata: Metadata = {
 };
 
 export default function CreateNote() {
+  const router = useRouter();
+  function handleClose() {
+    router.back();
+  }
   return (
     <main className={css.main}>
       <div className={css.container}>
         <h1 className={css.title}>Create note</h1>
-        {/* NoteForm component */}
+        <NoteForm onClose={handleClose} />
       </div>
     </main>
   );

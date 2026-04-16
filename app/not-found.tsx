@@ -3,11 +3,11 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Note-founde",
-  description: "Sorry your page was not found  ",
+  description: "The page you are looking for could not be found.",
   openGraph: {
-    title: "Note-founde",
-    description: "Sorry your page was not found  ",
-    url: "http://localhost:3000",
+    title: "Not Found",
+    description: "The page you are looking for could not be found.",
+    url: "https://08-zustand-blush-eight.vercel.app/",
     images: [
       {
         url: "/notehub-og-meta.jpg",
