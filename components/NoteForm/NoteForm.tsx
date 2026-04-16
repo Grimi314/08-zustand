@@ -1,3 +1,5 @@
+"use client";
+
 import css from "./NoteForm.module.css";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../lib/api";
@@ -6,17 +8,13 @@ import { useRouter } from "next/navigation";
 import { NewNoteData } from "@/lib/store/noteStore";
 import { useState } from "react";
 
-interface NoteFormProps {
-  onClose: () => void;
-}
-
 interface FormValues {
   title: string;
   content: string;
   tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }
 
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function NoteForm() {
   const router = useRouter();
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
   const [errors, setErrors] = useState<Partial<FormValues>>({});
@@ -109,7 +107,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
           {mutation.isPending ? "Creating..." : "Create"}
         </button>
 
-        <button type="button" onClick={onClose}>
+        <button type="button" onClick={() => router.back()}>
           Cancel
         </button>
       </div>

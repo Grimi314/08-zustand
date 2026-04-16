@@ -1,7 +1,7 @@
 import css from "./CreateNote.module.css";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import { Metadata } from "next";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "CreateNote",
