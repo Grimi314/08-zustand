@@ -16,7 +16,7 @@ export default async function NotesPage({ params }: Props) {
 
   const { slug } = await params;
   const rawTag = slug?.[0];
-  const tag = rawTag === "all" ? "" : rawTag;
+  const tag = rawTag === "all" ? undefined : rawTag;
   await queryClient.prefetchQuery({
     queryKey: ["note", slug],
     queryFn: () => fetchNotes(tag),
@@ -32,7 +32,7 @@ export default async function NotesPage({ params }: Props) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const rawTag = slug?.[0];
-  const tag = rawTag === "all" ? "" : rawTag;
+  const tag = rawTag === "all" ? undefined : rawTag;
 
   return {
     title: `Notes filtered by:  ${tag}`,

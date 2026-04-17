@@ -1,7 +1,6 @@
 "use client";
 
 import { fetchNotes } from "@/lib/api";
-import type { Note } from "@/types/note";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
@@ -13,7 +12,7 @@ import Loader from "@/app/loading";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  tag: string;
+  tag: string | undefined;
 };
 
 export default function NotesClient({ tag }: Props) {
