@@ -8,7 +8,9 @@ const BASE_URL = "https://notehub-public.goit.study/api/notes";
         notes: Note[];
       
         totalPages: number;
-    }
+}
+    
+
 
 export async function fetchNotes(searchText?: string, page?: number , perPage?: number , tag? : string ): Promise<FetchNotesProps>{
     const response = await axios.get<FetchNotesProps>(BASE_URL, {
